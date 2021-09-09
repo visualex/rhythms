@@ -7,7 +7,8 @@
 		body {font-family: monospace;margin: 1em 0;}
 		form {margin: 0;}
 		label,input{font-size: 1em; width: 150px; display: inline-block;}
-		.note { width:30px; height:30px; float:left; background:gray; }
+		.sequence{padding: 10px 0;}
+		.note {border: solid 1px; margin-right: 1px; margin-bottom: 1px; width:30px; height:30px; float:left; background:gray; }
 		.note.on  { width:30px; height:30px; float:left; background:black; }
 		.wrap{margin: 2em;}
 	</style>
@@ -16,7 +17,7 @@
 <div class="wrap">
 	<div>
 		<h1>Christoffel symbols</h1>
-		<p>This is an example of how to generate <a href="https://en.wikipedia.org/wiki/Christoffel_symbols">Christoffel symbols</a>. Choose a number of beats and silences, these together are essentially, the total of the loop. You can repeat the loop by giving it a total length. Up or down parameter sets the starting/ending step as an on or off beat. Start off with parameters like 8, 6, 16, 0</p>
+		<p>This is an example of how to generate <a href="https://en.wikipedia.org/wiki/Christoffel_symbols">Christoffel symbols</a>. Choose a number of beats and silences, these together are essentially, the total of the loop. You can repeat the loop by giving it a total length. Up or down parameter sets the starting/ending step as an on or off beat.</p>
 	</div>
 	<form action="#" onsubmit="generate(); return false;">
 		<label>n beats </label><input class="x" type="number" value="0" name="x" placeholder="X" /><br>
@@ -59,16 +60,16 @@
     		++i;
     		for(a=p, b=q; a!=b && i<n; ++i)
       			if(a>b){
-					    sequence.push(1);
-					    b+=q;
-				    } else {
-					    sequence.push(0);
-					    a+=p;
-				    }
-    			  if(a==b && i<n){
-    				  sequence.push(upperOrLower ? 1 : 0);
-    				  ++i;
-    			  }
+					sequence.push(1);
+					b+=q;
+				} else {
+					sequence.push(0);
+					a+=p;
+				}
+    			if(a==b && i<n){
+    				sequence.push(upperOrLower ? 1 : 0);
+    				++i;
+    			}
   		} while(i<n);
 
         return sequence;
