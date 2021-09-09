@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title></title>
+	<style type="text/css">
+		body {font-family: monospace;margin: 1em 0;}
+		form {margin: 0;}
+		label,input{font-size: 1em; width: 150px; display: inline-block;}
+		.note { width:30px; height:30px; float:left; background:gray; }
+		.note.on  { width:30px; height:30px; float:left; background:black; }
+		.wrap{margin: 2em;}
+	</style>
+</head>
+<body>
+<div class="wrap">
+	<div>
+		<h1>Christoffel symbols</h1>
+		<p>This is an example of how to generate <a href="https://en.wikipedia.org/wiki/Christoffel_symbols">Christoffel symbols</a>. Choose a number of beats and silences, these together are essentially, the total of the loop. You can repeat the loop by giving it a total length. Up or down parameter sets the starting/ending step as an on or off beat.</p>
+	</div>
+	<form action="#" onsubmit="generate(); return false;">
+		<label>n beats </label><input class="x" type="number" value="0" name="x" placeholder="X" /><br>
+		<label>n silence </label><input class="y" type="number" value="0" name="y" placeholder="Y" /><br>
+		<label>tot length </label><input class="length" type="number" value="0" name="length" placeholder="length" /><br>
+		<label>up/down (0/1)</label><input class="upper_or_lower" type="number" value="0" name="upper_or_lower" placeholder="upper or lower" /><br>
+		<input type="submit" value="generate"/><br>
+	</form>
+
+	<div class="sequence">
+		<div class="note"></div>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+
+	generate = function() {
+		seq = generator(document.querySelector('.x').value, document.querySelector('.y').value, document.querySelector('.length').value, document.querySelector('.upper_or_lower').value);
+		document.querySelector('.sequence').innerHTML = '';
+		for (var i = 0; i < seq.length; i++) {
+			if (seq[i] == 1) {
+				document.querySelector('.sequence').innerHTML += '<div class="note on"></div>';
+				continue;
+			}
+			document.querySelector('.sequence').innerHTML += '<div class="note"></div>';
+		}
+	};
+
+	generator = function(x, y, length, upperOrLower) {
+        var sequence = [];
+        a = p = parseInt(x);
+        b = q = parseInt(y);
+        length = n = parseInt(length);
+        upperOrLower = parseInt(upperOrLower);
+
+        i = 0;
+        do{
+    		sequence.push(upperOrLower ? 1 : 0);
+    		++i;
+    		for(a=p, b=q; a!=b && i<n; ++i)
+      			if(a>b){
+					    sequence.push(1);
+					    b+=q;
+				    } else {
+					    sequence.push(0);
+					    a+=p;
+				    }
+    			  if(a==b && i<n){
+    				  sequence.push(upperOrLower ? 1 : 0);
+    				  ++i;
+    			  }
+  		} while(i<n);
+
+        return sequence;
+    };
+
+</script>
+</body>
+</html>
