@@ -7,7 +7,7 @@
 		body {font-family: monospace;margin: 1em 0;}
 		form {margin: 0;}
 		label,input{font-size: 1em; width: 150px; display: inline-block;}
-		.sequence{padding: 10px 0;}
+		.sequence, .player{padding: 10px 0; display: block;overflow: hidden;}
 		.note {border: solid 1px; margin-right: 1px; margin-bottom: 1px; width:30px; height:30px; float:left; background:gray; }
 		.note.on  { width:30px; height:30px; float:left; background:black; }
 		.wrap{margin: 2em;}
@@ -20,9 +20,9 @@
 		<p>This is an example of how to generate <a href="https://en.wikipedia.org/wiki/Christoffel_symbols">Christoffel symbols</a>. Choose a number of beats and silences, these together are essentially, the total of the loop. You can repeat the loop by giving it a total length. Up or down parameter sets the starting/ending step as an on or off beat.</p>
 	</div>
 	<form action="#" onsubmit="generate(); return false;">
-		<label>n beats </label><input class="x" type="number" value="0" name="x" placeholder="X" /><br>
-		<label>n silence </label><input class="y" type="number" value="0" name="y" placeholder="Y" /><br>
-		<label>tot length </label><input class="length" type="number" value="0" name="length" placeholder="length" /><br>
+		<label>n beats </label><input class="x" type="number" value="8" name="x" placeholder="X" /><br>
+		<label>n silence </label><input class="y" type="number" value="3" name="y" placeholder="Y" /><br>
+		<label>tot length </label><input class="length" type="number" value="32" name="length" placeholder="length" /><br>
 		<label>up/down (0/1)</label><input class="upper_or_lower" type="number" value="0" name="upper_or_lower" placeholder="upper or lower" /><br>
 		<input type="submit" value="generate"/><br>
 	</form>
@@ -30,10 +30,20 @@
 	<div class="sequence">
 		<div class="note"></div>
 	</div>
+
+	<br>
+
+	<div class="player">
+		<p>select your MIDI port where you want to receive the sequence once generated. MIDI will only function on Google Chrome <a href="https://caniuse.com/?search=midi">check MIDI support on your browser</a> </p>
+		<select id="inputportselector"></select>
+		<button onclick="play();">play</button>
+	</div>
+
 </div>
 
 <script type="text/javascript">
 
+	var seq;
 
 	generate = function() {
 		seq = generator(document.querySelector('.x').value, document.querySelector('.y').value, document.querySelector('.length').value, document.querySelector('.upper_or_lower').value);
@@ -51,7 +61,7 @@
         var sequence = [];
         a = p = parseInt(x);
         b = q = parseInt(y);
-        length = n = parseInt(length);
+        n = parseInt(length);
         upperOrLower = parseInt(upperOrLower);
 
         i = 0;
@@ -74,6 +84,55 @@
 
         return sequence;
     };
+
+    function play() {
+
+    	note = 1;
+    	for(a in seq) {
+    		if (seq[a] == 1) {
+    			// silly but works for explanatory purposes
+				window.setTimeout(function(){ sendMiddleC( midi, document.getElementById("inputportselector").value ); }, (60000 / 120) * note);
+				window.setTimeout(function(){ sendMidiNoteOff( midi, document.getElementById("inputportselector").value ); }, ((60000 / 120) * note) + 100);
+    		}
+    		++note;
+    	}
+    }
+
+    // play this
+    var midi = null;  // global MIDIAccess object
+
+	function onMIDISuccess( midiAccess ) {
+		console.log( "MIDI ready!" );
+		midi = midiAccess;  // store in the global (in real usage, would probably keep in an object instance)
+
+		midiAccess.outputs.forEach( function( port, key ) {
+			var opt = document.createElement("option");
+			console.log(port)
+			opt.value = port.id;
+			opt.text = port.name;
+			document.getElementById("inputportselector").add(opt);
+		});
+	}
+
+	function onMIDIFailure(msg) {
+		console.log( "Failed to get MIDI access - " + msg );
+	}
+
+	navigator.requestMIDIAccess().then( onMIDISuccess, onMIDIFailure );
+
+    function sendMiddleC(midiAccess, portID) {
+    	console.log('note on');
+	    var noteOnMessage = [0x90, 60, 0x7f];    // note on, middle C, full velocity
+	    var output = midiAccess.outputs.get(portID);
+	    output.send(noteOnMessage); // sends the message.
+	}
+
+	function sendMidiNoteOff(midiAccess, portID) {
+		console.log('note off');
+		var noteOffMessage = [0x80, 60, 0x7f];    // note off, middle C, full velocity
+	    var output = midiAccess.outputs.get(portID);
+	    output.send(noteOffMessage);
+	}
 
 </script>
 </body>
