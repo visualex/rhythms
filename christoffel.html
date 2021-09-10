@@ -7,7 +7,7 @@
 		body {font-family: monospace;margin: 1em 0;}
 		form {margin: 0;}
 		label,input{font-size: 1em; width: 150px; display: inline-block;}
-		.sequence, .player{padding: 10px 0; display: block;overflow: hidden;}
+		.sequence, .player, .diagram, p{padding: 10px 0; display: block;overflow: hidden;}
 		.note {border: solid 1px; margin-right: 1px; margin-bottom: 1px; width:30px; height:30px; float:left; background:gray; }
 		.note.on  { width:30px; height:30px; float:left; background:black; }
 		.wrap{margin: 2em;}
@@ -17,13 +17,24 @@
 <div class="wrap">
 	<div>
 		<h1>Christoffel symbols</h1>
-		<p>This is an example of how to generate <a href="https://en.wikipedia.org/wiki/Christoffel_symbols">Christoffel symbols</a>. Choose a number of beats and silences, these together are essentially, the total of the loop. You can repeat the loop by giving it a total length. Up or down parameter sets the starting/ending step as an on or off beat.</p>
+		<p>
+			This is an example of how to generate <a href="https://en.wikipedia.org/wiki/Christoffel_symbols">Christoffel symbols</a>. Choose a number of beats and silences, these together are essentially, the total of the loop. You can repeat the loop by giving it a total length. Up or down parameter sets the starting/ending step as an on or off beat.
+		</p>
+
+		<p>
+			The following diagram depicts an upper and lower symbol of 5,11. You can use any parameters (points) to generate a sequence, however, if you want sequences which do not contain repetitions of other sequences, the parameters need to be <a href="https://en.wikipedia.org/wiki/Coprime_integers">Coprime integers</a>.<br>
+		</p>
+
+		<div class="diagram">
+			<img src="christoffel.svg">
+		</div>
+
 	</div>
 	<form action="#" onsubmit="generate(); return false;">
-		<label>n beats </label><input class="x" type="number" value="8" name="x" placeholder="X" /><br>
-		<label>n silence </label><input class="y" type="number" value="3" name="y" placeholder="Y" /><br>
-		<label>tot length </label><input class="length" type="number" value="32" name="length" placeholder="length" /><br>
-		<label>up/down (0/1)</label><input class="upper_or_lower" type="number" value="0" name="upper_or_lower" placeholder="upper or lower" /><br>
+		<label>n beats </label><input class="x" type="number" value="5" name="x" placeholder="X" /><br>
+		<label>n silence </label><input class="y" type="number" value="11" name="y" placeholder="Y" /><br>
+		<label>tot length </label><input class="length" type="number" value="16" name="length" placeholder="length" /><br>
+		<label>upper/lower (0/1)</label><input class="upper_or_lower" type="number" value="0" name="upper_or_lower" placeholder="upper or lower" /><br>
 		<input type="submit" value="generate"/><br>
 	</form>
 
@@ -34,7 +45,7 @@
 	<br>
 
 	<div class="player">
-		<p>select your MIDI port where you want to receive the sequence once generated. MIDI will only function on Google Chrome <a href="https://caniuse.com/?search=midi">check MIDI support on your browser</a> </p>
+		<p>select your MIDI port where you want to receive the sequence once generated at 120BPM. MIDI will only function on Google Chrome <a href="https://caniuse.com/?search=midi">check MIDI support on your browser</a> </p>
 		<select id="inputportselector"></select>
 		<button onclick="play();">play</button>
 	</div>
@@ -48,6 +59,7 @@
 	generate = function() {
 		seq = generator(document.querySelector('.x').value, document.querySelector('.y').value, document.querySelector('.length').value, document.querySelector('.upper_or_lower').value);
 		document.querySelector('.sequence').innerHTML = '';
+		console.log(seq.join())
 		for (var i = 0; i < seq.length; i++) {
 			if (seq[i] == 1) {
 				document.querySelector('.sequence').innerHTML += '<div class="note on"></div>';
@@ -65,22 +77,22 @@
         upperOrLower = parseInt(upperOrLower);
 
         i = 0;
-        do{
+        do {
     		sequence.push(upperOrLower ? 1 : 0);
     		++i;
-    		for(a=p, b=q; a!=b && i<n; ++i)
-      			if(a>b){
+    		for (a = p, b = q; a != b && i < n; ++i)
+      			if (a > b){
 					sequence.push(1);
-					b+=q;
+					b += q;
 				} else {
 					sequence.push(0);
-					a+=p;
+					a += p;
 				}
-    			if(a==b && i<n){
-    				sequence.push(upperOrLower ? 1 : 0);
+    			if (a == b && i < n){
+    				sequence.push(upperOrLower ? 0 : 1);
     				++i;
     			}
-  		} while(i<n);
+  		} while (i < n);
 
         return sequence;
     };
